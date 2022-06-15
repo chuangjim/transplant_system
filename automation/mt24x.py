@@ -27,7 +27,7 @@ class MT24X(ReqResSerial):
         self.plate_init_pos = [43200, 46000]
         self.plate_step = [(55550-43100)/self.plate_size[0], (46100-26200)/self.plate_size[1]]
 
-    def request(self, cmd, timeout = None, retry_times = 0, return_value=True):
+    def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
         resp = resp.replace(self._terminator, "") if resp is not None else "no response"
 
@@ -55,7 +55,7 @@ class MT24X(ReqResSerial):
         return self.request("GET_ZERO {}".format(m_id))
 
     def get_run(self, m_id):
-        return self.request("GET_RUN {}".format(m_id), timeout = 0.5, return_value=False)
+        return self.request("GET_RUN {}".format(m_id), timeout = 0.5)
         # return self.request("GET_RUN {}".format(m_id), timeout = 0.5, return_value=True)
 
     def get_in(self, x, timeout = 0.5, retry_times = 3):
@@ -65,17 +65,17 @@ class MT24X(ReqResSerial):
     
     def get_pos(self, x, timeout = 0.5, retry_times = 3):
         cmd = "GET_POS {}".format(x)
-        v = self.request(cmd, timeout, retry_times)
+        v = self.request(cmd, timeout, retry_times, return_value = True)
         return v
     
     def get_p(self, x, timeout = 0.5, retry_times = 3):
         cmd = "GET_P {}".format(x)
-        v = self.request(cmd, timeout, retry_times)
+        v = self.request(cmd, timeout, retry_times, return_value = True)
         return v        
 
     def set_out(self, y, v, timeout = 0.5, retry_times = 3):
         cmd = "SET_OUT {} {}".format(y, v)
-        v = self.request(cmd, timeout, retry_times)
+        v = self.request(cmd, timeout, retry_times, return_value = True)
         return v
 
     def get_out(self, y, timeout = 0.5, retry_times = 3):
@@ -132,7 +132,7 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2)
         self.request(
             "P_REL {} {}".format(m_id, delta_step), 
-            timeout=0.5, retry_times = 2)
+            timeout=0.5, retry_times = 2, return_value = True)
         if wait:
             self.wait()
 
@@ -149,7 +149,7 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2)
         self.request(
             "P_ABS {} {}".format(m_id, step), 
-            timeout=0.5, retry_times = 2)
+            timeout=0.5, retry_times = 2, return_value = True)
         if wait:
             self.wait()
             # self.check_pos(m_id, step)
@@ -166,7 +166,7 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2)
         self.request(
             "L_ABS 0 {} {}".format(m_ids_str, step_str), 
-            timeout=0.5, retry_times = 2)
+            timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
 
     def move_MODE_L_REL(self, m_ids, delta_step, acc_step=None, dec_step=None, vec_step=None):
@@ -181,7 +181,7 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2)
         self.request(
             "L_REL 0 {} {}".format(m_ids_str, step_str), 
-            timeout=0.5, retry_times = 2)
+            timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
     def move_to_center(self, point):
         x_diff = int((1060 - point[0])*self.ratio)
@@ -189,13 +189,6 @@ class MT24X(ReqResSerial):
         # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
         self.move_MODE_P_REL(0, x_diff)
         self.move_MODE_P_REL(1, y_diff)
-
-    def set_out(self, out_id, state):
-        self.request(
-            "SET_OUT {} {}".format(
-                out_id, state), 
-            timeout=0.5, retry_times = 2)
-        # self.wait()
 
     def get_hole_pos(self, egg_count):
         hole_0 = self.plate_init_pos[0]+int((egg_count//self.plate_size[0])*self.plate_step[0])
