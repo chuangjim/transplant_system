@@ -115,7 +115,7 @@ class ImageProcessing:
         sure_bg = cv2.dilate(opening,kernel,iterations=3)
         # Finding sure foreground area
         dist_transform = cv2.distanceTransform(opening,cv2.DIST_L2,5)
-        _, sure_fg = cv2.threshold(dist_transform,0.3*dist_transform.max(),255,0)
+        _, sure_fg = cv2.threshold(dist_transform,0.1*dist_transform.max(),255,0)
         # Finding unknown region
         sure_fg = np.uint8(sure_fg)
         unknown = cv2.subtract(sure_bg,sure_fg)
@@ -132,9 +132,9 @@ class ImageProcessing:
         self.obj_center = []
         # show_rgb(img)
         for i, center in enumerate(centroids):
-            # print(stats[i][-1])
-            if 1000 < stats[i][-1] < 2600:
-        #         calculate x,y coordinate of center
+            print(stats[i][-1])
+            # area filtering
+            if 1000 < stats[i][-1] < 3000:
                 center = center.astype(int)
                 self.obj_center.append(center)
                 print(center[0], center[1], stats[i])
