@@ -21,7 +21,8 @@ class MT24X(ReqResSerial):
         self.block_size = [7, 11]
         self.block_step = [2800, 1800]
         self.block_count = 0
-        self.block_init_pos = [17200, 46600]
+        # self.block_init_pos = [17200, 46600]
+        self.block_init_pos = [22800, 37600]
         self.frame_init_pos = []
         self.plate_size = [7, 11]
         self.plate_init_pos = [43200, 46000]
@@ -62,7 +63,7 @@ class MT24X(ReqResSerial):
         cmd = "GET_IN {}".format(x)
         v = self.request(cmd, timeout, retry_times)
         return v
-    
+
     def get_pos(self, x, timeout = 0.5, retry_times = 3):
         cmd = "GET_POS {}".format(x)
         v = self.request(cmd, timeout, retry_times, return_value = True)
@@ -104,7 +105,7 @@ class MT24X(ReqResSerial):
                 break
             time.sleep(0.1)
 
-    def calibration(self, m_id, acc_step=None, dec_step=None, vec_step=None):
+    def calibration(self, m_id, acc_step=None, dec_step=None, vec_step=None, wait=False):
         if not acc_step: acc_step = self.acc_step
         if not dec_step: dec_step = self.dec_step
         if not vec_step: vec_step = self.vec_step
@@ -117,6 +118,8 @@ class MT24X(ReqResSerial):
         self.request(
             "H_V {} {}".format(m_id, vec_step),
             timeout=0.5, retry_times = 2)
+        if wait:
+            self.wait()
         # self.check_pos(m_id, 0)
 
     def move_MODE_P_REL(self, m_id, delta_step, acc_step=None, dec_step=None, vec_step=None, wait = False):

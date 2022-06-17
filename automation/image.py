@@ -134,7 +134,8 @@ class ImageProcessing:
         for i, center in enumerate(centroids):
             print(stats[i][-1])
             # area filtering
-            if 1000 < stats[i][-1] < 3000:
+            # TODO: find suitable area
+            if 1000 < stats[i][-1] < 4000:
                 center = center.astype(int)
                 self.obj_center.append(center)
                 print(center[0], center[1], stats[i])
