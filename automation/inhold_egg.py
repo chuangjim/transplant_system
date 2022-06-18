@@ -30,6 +30,9 @@ except SerialException:
     sys.exit(1)
 motor.calibration(3, 3000, 3000, 1000)
 
+motor_positioning = input("start motor positioning?(y/n)")
+if motor_positioning == "y":
+    motor.move_MODE_P()    
 
 # # set folder path
 # folder_name = input('input folder name:')
@@ -79,10 +82,10 @@ try:
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4045, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -4110, 15000, 15000, 5000, wait=True)
                     time.sleep(0.2)
                     cam.take_photo()
-                    motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -3300, 15000, 15000, 5000, wait=True)
 
                     # motor move to hole
                     hole_0, hole_1 = motor.get_hole_pos(egg_count)
@@ -119,6 +122,9 @@ except KeyboardInterrupt :
 except Exception as e :
     print(e)
     # print(f"{Fore.GREEN}{Style.RESET_ALL}")
+    # motor.calibration(3, 3000, 3000, 1000)
+    # motor.move_MODE_P(0, motor.block_init_pos[0])
+    # motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
     pass
 motor.calibration(3, 3000, 3000, 1000)
 motor.move_MODE_P(0, motor.block_init_pos[0])
