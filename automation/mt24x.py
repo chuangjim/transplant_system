@@ -21,11 +21,11 @@ class MT24X(ReqResSerial):
         self.block_size = [7, 11]
         self.block_step = [2800, 1800]
         self.block_count = 0
-        # self.block_init_pos = [17200, 46600]
-        self.block_init_pos = [22800, 37600]
+        self.block_init_pos = [17200, 46600]
+        # self.block_init_pos = [22800, 37600]
         self.frame_init_pos = []
         self.plate_size = [7, 11]
-        self.plate_init_pos = [43200, 46000]
+        self.plate_init_pos = [43200, 46100]
         self.plate_step = [(55550-43100)/self.plate_size[0], (46100-26200)/self.plate_size[1]]
 
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
@@ -187,8 +187,8 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
     def move_to_center(self, point):
-        x_diff = int((1060 - point[0])*self.ratio)
-        y_diff = int((586 - point[1])*self.ratio)
+        x_diff = int((1096 - point[0])*self.ratio)
+        y_diff = int((598 - point[1])*self.ratio)
         # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
         self.move_MODE_P_REL(0, x_diff)
         self.move_MODE_P_REL(1, y_diff)
