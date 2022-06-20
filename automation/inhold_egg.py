@@ -17,6 +17,8 @@ if slow_mode == "y" or "":
     acc_step, dec_step, vec_step = 6000, 6000, 2000
 elif slow_mode == "n":
     acc_step, dec_step, vec_step = 36000, 36000, 12000
+    # acc_step, dec_step, vec_step = 75000, 75000, 25000
+
 
 # initialize motor
 try:
@@ -30,13 +32,14 @@ except SerialException:
     sys.exit(1)
 
 
-motor_positioning = input("start motor positioning?(y/n)")
-if motor_positioning == "y":
-    motor.move_MODE_P()    
+# motor_positioning = input("start motor positioning?(y/n)")
+# if motor_positioning == "y":
+#     # TODO: motor move to edge to callibrate camera 
+#     motor.move_MODE_P()    
 
 # # set folder path
 # folder_name = input('input folder name:')
-folder_name = "test"
+# folder_name = "dataset_2"
 image_path = f"./img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
@@ -65,33 +68,35 @@ try:
 
             # find egg centers
             cam.take_photo()
-            centers = cam.find_center_white_plate(show=True)
+            # centers = cam.find_center_white_plate(show=True)
+            centers = cam.find_center_white_plate(show=False)
             if not centers :
                 print(f"{Fore.RED}egg not found!{Style.RESET_ALL}")
-            elif cam.egg_count == 96:
+            elif cam.motor_egg_count == 96:
                 print(f"{Fore.RED}egg plate is full, please change plate!{Style.RESET_ALL}")
                 raise 
             else:
                 # start inholding eggs
                 for center in centers:
                     print(f"center: {center}")
-                    print(Fore.GREEN+"-"*30+f"Egg count: {cam.egg_count}"+"-"*30+Style.RESET_ALL)
+                    print(Fore.GREEN+"-"*30+f"Egg count: {cam.motor_egg_count}"+"-"*30+Style.RESET_ALL)
                     motor.move_to_center(center)
-                    time.sleep(0.2)
+                    time.sleep(0.3)
                     cam.take_photo()
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4110, 12000, 12000, 3000, wait=True)
-                    time.sleep(0.2)
+                    motor.move_MODE_P(3, -4215, 12000, 12000, 3000, wait=True)
+                    time.sleep(0.3)
                     cam.take_photo()
                     motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
 
                     # motor move to hole
-                    hole_0, hole_1 = motor.get_hole_pos(cam.egg_count)
+                    hole_0, hole_1 = motor.get_hole_pos(cam.motor_egg_count)
                     motor.move_MODE_P(0, hole_0)
                     motor.move_MODE_P(1, hole_1, wait=True)
-                    time.sleep(0.2)
+                    cam.motor_egg_count += 1
+                    time.sleep(0.3)
                     cam.take_photo()
 
                     # release egg
@@ -108,14 +113,14 @@ try:
 
             # move to next block
             # print(f"{Fore.RED}move to next block!{Style.RESET_ALL}")
-            motor.move_MODE_P_REL(1, -motor.block_step[1], wait=True)
             motor.block_count += 1
             if j == 10:
-                print(Fore.GREEN+"-"*40+f"block count: {motor.block_count}"+"-"*40+Style.RESET_ALL)
                 print(f"{Fore.RED}move to next block column!{Style.RESET_ALL}")
                 motor.move_MODE_P_REL(0, motor.block_step[0])
                 motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
-                motor.block_count += 1
+            else:
+                motor.move_MODE_P_REL(1, -motor.block_step[1], wait=True)
+
 except KeyboardInterrupt :
     print(f"{Fore.GREEN}Keyboard Interrrupt{Style.RESET_ALL}")
 except Exception as e :

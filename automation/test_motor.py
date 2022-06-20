@@ -14,20 +14,11 @@ cam = ImageProcessing(image_path)
 motor.move_MODE_P(0, motor.block_init_pos[0])
 motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
 try:
-    for i in range(motor.block_size[0]):
-        for j in range(motor.block_size[1]):
-            # if motor.block_count in []
-            print(Fore.GREEN+"-"*40+f"block count: {motor.block_count}"+"-"*40+Style.RESET_ALL)
-            img = cam.take_photo()
-            motor.move_MODE_P_REL(1, -motor.block_step[1])
-            motor.block_count += 1
-            # cam.show(img)
-            if j == 11:
-                print(Fore.GREEN+"-"*40+f"block count: {motor.block_count}"+"-"*40+Style.RESET_ALL)
-                img = cam.take_photo()
-                motor.move_MODE_P_REL(0, motor.block_step[0])
-                motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
-                motor.block_count += 1
+    while True:
+        hole_0, hole_1 = motor.get_hole_pos(cam.motor_egg_count)
+        motor.move_MODE_P(0, hole_0)
+        motor.move_MODE_P(1, hole_1, wait=True)
+        cam.motor_egg_count += 1
 
 except KeyboardInterrupt:
     motor.move_MODE_P(0, motor.block_init_pos[0])

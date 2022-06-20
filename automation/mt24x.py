@@ -24,10 +24,11 @@ class MT24X(ReqResSerial):
         self.block_init_pos = [17200, 46600]
         # self.block_init_pos = [22800, 37600]
         self.frame_init_pos = []
-        self.plate_size = [7, 11]
+        self.plate_size = [8, 12]
         self.plate_limit = [35000, 0]
         self.plate_init_pos = [43200, 46100]
         self.calibration_pos = [41228, 48519]
+        self.niddle_center_pos = [1236, 600]
         self.plate_step = [(55550-43100)/self.plate_size[0], (46100-26200)/self.plate_size[1]]
 
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
@@ -189,13 +190,13 @@ class MT24X(ReqResSerial):
             timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
     def move_to_center(self, point):
-        x_diff = int((1096 - point[0])*self.ratio)
-        y_diff = int((598 - point[1])*self.ratio)
+        x_diff = int((self.niddle_center_pos[0] - point[0])*self.ratio)
+        y_diff = int((self.niddle_center_pos[1] - point[1])*self.ratio)
         # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
         self.move_MODE_P_REL(0, x_diff)
         self.move_MODE_P_REL(1, y_diff)
 
     def get_hole_pos(self, egg_count):
-        hole_0 = self.plate_init_pos[0]+int((egg_count//self.plate_size[0])*self.plate_step[0])
+        hole_0 = self.plate_init_pos[0]+int((egg_count//self.plate_size[1])*self.plate_step[0])
         hole_1 = self.plate_init_pos[1]-int((egg_count%self.plate_size[1])*self.plate_step[1])
         return hole_0, hole_1

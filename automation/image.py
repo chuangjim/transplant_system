@@ -14,7 +14,9 @@ class ImageProcessing:
         ret, self.img = self.cam.read()
         self.h, self.w = self.img.shape[:2]
         self.img_center = (int(self.h/2), int(self.w/2))
-        self.egg_count = 0
+        self.img_egg_count = 0
+        self.motor_egg_count = 0
+        
 
         self.test()
 
@@ -48,8 +50,8 @@ class ImageProcessing:
     def save_img(self,img, crop = False):
         if crop:
             folder_path = self.image_crop_path
-            count = self.egg_count
-            self.egg_count += 1
+            count = self.img_egg_count
+            self.img_egg_count += 1
         else:
             folder_path = self.image_path
             count = self.img_count
@@ -144,7 +146,7 @@ class ImageProcessing:
             print(stats[i][-1])
             # area filtering
             # TODO: find suitable area
-            if 1000 < stats[i][-1] < 4000:
+            if 1000 < stats[i][-1] < 4500:
                 center = center.astype(int)
                 self.obj_center.append(center)
                 print(center[0], center[1], stats[i])
