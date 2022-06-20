@@ -6,6 +6,7 @@ import os
 class ImageProcessing:
     def __init__(self, image_path):
         self.image_path = image_path
+        self.image_crop_path = f"{self.image_path}/crop"
         self.cam = cv2.VideoCapture(1, cv2.CAP_DSHOW)
         self.cam.set(3,1920)
         self.cam.set(4,1080)
@@ -13,6 +14,7 @@ class ImageProcessing:
         ret, self.img = self.cam.read()
         self.h, self.w = self.img.shape[:2]
         self.img_center = (int(self.h/2), int(self.w/2))
+        self.egg_count = 0
 
         self.test()
 
@@ -43,13 +45,20 @@ class ImageProcessing:
         self.save_img(self.img)
         return self.img
 
-    def save_img(self,img):
-        if not os.path.exists(self.image_path):
-            os.mkdir(self.image_path)
-        path = f"{self.image_path}/{self.img_count}.jpg"
-        cv2.imwrite(path, img)
-        print(f"save images at: {path}")
-        self.img_count += 1
+    def save_img(self,img, crop = False):
+        if crop:
+            folder_path = self.image_crop_path
+            count = self.egg_count
+            self.egg_count += 1
+        else:
+            folder_path = self.image_path
+            count = self.img_count
+            self.img_count += 1
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+        file_path = f"{folder_path}/{count}.jpg"
+        cv2.imwrite(file_path, img)
+        print(f"save images at: {file_path}")
         return self.img
     
     def find_center_filter_screen(self):
@@ -141,6 +150,17 @@ class ImageProcessing:
                 print(center[0], center[1], stats[i])
                 cv2.circle(img_cp, (center[0], center[1]), 5, (255, 0, 0), -1)
                 cv2.putText(img_cp, f'({center[0]}, {center[1]})', (center[0] - 25, center[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
+                # crop one egg frop image
+                top = 0 if (center[1]-50 < 0) else center[1]-50
+                down = 1080 if (center[1]+50 > 1080) else center[1]+50
+                left = 0 if (center[0]-50 < 0) else center[0]-50
+                right = 1920 if (center[0]+50 > 1920) else center[0]+50
+
+
+                crop_img = self.img[top:down, left:right]
+                # print(crop_img)
+                # self.show(crop_img)
+                self.save_img(crop_img, crop=True)
         if show:
             self.show(img_cp)
         self.save_img(img_cp)

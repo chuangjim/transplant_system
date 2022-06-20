@@ -28,7 +28,7 @@ try:
 except SerialException:
     print(Fore.RED+"Cannot connect motor, please turnoff MTHelper.exe, check COM port number, or replug cable"+Style.RESET_ALL)
     sys.exit(1)
-motor.calibration(3, 3000, 3000, 1000)
+
 
 motor_positioning = input("start motor positioning?(y/n)")
 if motor_positioning == "y":
@@ -56,7 +56,6 @@ print(f"initial position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
 
 
 # start transplantation
-egg_count = 0
 try: 
     for i in range(motor.block_size[0]):
         for j in range(motor.block_size[1]):
@@ -69,26 +68,27 @@ try:
             centers = cam.find_center_white_plate(show=True)
             if not centers :
                 print(f"{Fore.RED}egg not found!{Style.RESET_ALL}")
-            elif egg_count == 96:
+            elif cam.egg_count == 96:
                 print(f"{Fore.RED}egg plate is full, please change plate!{Style.RESET_ALL}")
                 raise 
             else:
                 # start inholding eggs
                 for center in centers:
-                    print(Fore.GREEN+"-"*30+f"Egg count: {egg_count}"+"-"*30+Style.RESET_ALL)
+                    print(f"center: {center}")
+                    print(Fore.GREEN+"-"*30+f"Egg count: {cam.egg_count}"+"-"*30+Style.RESET_ALL)
                     motor.move_to_center(center)
                     time.sleep(0.2)
                     cam.take_photo()
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4110, 15000, 15000, 5000, wait=True)
+                    motor.move_MODE_P(3, -4110, 12000, 12000, 3000, wait=True)
                     time.sleep(0.2)
                     cam.take_photo()
-                    motor.move_MODE_P(3, -3300, 15000, 15000, 5000, wait=True)
+                    motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
 
                     # motor move to hole
-                    hole_0, hole_1 = motor.get_hole_pos(egg_count)
+                    hole_0, hole_1 = motor.get_hole_pos(cam.egg_count)
                     motor.move_MODE_P(0, hole_0)
                     motor.move_MODE_P(1, hole_1, wait=True)
                     time.sleep(0.2)
@@ -101,11 +101,10 @@ try:
                     # finish
                     motor.set_out(0, 0)
                     # TODO check hight
-                    motor.move_MODE_P(3, -2800, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -2500, 12000, 12000, 3000, wait=True)
                     cam.take_photo()
                     motor.move_MODE_P(0, motor.frame_init_pos[0])
                     motor.move_MODE_P(1, motor.frame_init_pos[1], wait=True) 
-                    egg_count+=1  
 
             # move to next block
             # print(f"{Fore.RED}move to next block!{Style.RESET_ALL}")
