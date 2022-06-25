@@ -28,7 +28,7 @@ try:
     motor.calibration(2, 36000, 36000, 12000)
     motor.calibration(3, 3000, 3000, 1000, wait = True)
 except SerialException:
-    print(Fore.RED+"Cannot connect motor, please turnoff MTHelper.exe, check COM port number, or replug cable"+Style.RESET_ALL)
+    print(Fore.RED+"Cannot connect motor, please turn off MTHelper.exe, check COM port number, or replug cable"+Style.RESET_ALL)
     sys.exit(1)
 
 
