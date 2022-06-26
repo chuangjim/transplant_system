@@ -39,7 +39,7 @@ except SerialException:
 
 # # set folder path
 # folder_name = input('input folder name:')
-# folder_name = "dataset_2"
+folder_name = "dataset_4"
 image_path = f"./img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
@@ -56,7 +56,6 @@ motor.move_MODE_P(2, -27900)
 motor.move_MODE_P(0, motor.block_init_pos[0])
 motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
 print(f"initial position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
-
 
 # start transplantation
 try: 
@@ -81,13 +80,13 @@ try:
                     print(f"center: {center}")
                     print(Fore.GREEN+"-"*30+f"Egg count: {cam.motor_egg_count}"+"-"*30+Style.RESET_ALL)
                     motor.move_to_center(center)
-                    time.sleep(0.3)
+                    # time.sleep(1)
                     cam.take_photo()
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4215, 12000, 12000, 3000, wait=True)
-                    time.sleep(0.3)
+                    motor.move_MODE_P(3, -4150, 12000, 12000, 3000, wait=True)
+                    # time.sleep(1)
                     cam.take_photo()
                     motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
 
@@ -96,7 +95,7 @@ try:
                     motor.move_MODE_P(0, hole_0)
                     motor.move_MODE_P(1, hole_1, wait=True)
                     cam.motor_egg_count += 1
-                    time.sleep(0.3)
+                    # time.sleep(1)
                     cam.take_photo()
 
                     # release egg
@@ -106,7 +105,7 @@ try:
                     # finish
                     motor.set_out(0, 0)
                     # TODO check hight
-                    motor.move_MODE_P(3, -2500, 12000, 12000, 3000, wait=True)
+                    motor.calibration(3, 12000, 12000, 3000, wait = True)
                     cam.take_photo()
                     motor.move_MODE_P(0, motor.frame_init_pos[0])
                     motor.move_MODE_P(1, motor.frame_init_pos[1], wait=True) 
@@ -114,7 +113,7 @@ try:
             # move to next block
             # print(f"{Fore.RED}move to next block!{Style.RESET_ALL}")
             motor.block_count += 1
-            if j == 10:
+            if j == (motor.block_size[1]-1):
                 print(f"{Fore.RED}move to next block column!{Style.RESET_ALL}")
                 motor.move_MODE_P_REL(0, motor.block_step[0])
                 motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
