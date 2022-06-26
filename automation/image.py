@@ -8,12 +8,10 @@ class ImageProcessing:
         self.image_path = image_path
         self.image_crop_path = f"{self.image_path}/crop"
         self.cam = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        # self.cam.set(cv2.CAP_PROP_BUFFERSIZE, 0)
         self.cam.set(3,1920)
         self.cam.set(4,1080)
         self.img_count = 0
-        ret, self.img = self.cam.read()
-        self.h, self.w = self.img.shape[:2]
-        self.img_center = (int(self.h/2), int(self.w/2))
         self.img_egg_count = 0
         self.motor_egg_count = 0
         
@@ -21,8 +19,9 @@ class ImageProcessing:
         self.test()
 
     def test(self):
-        cv2.namedWindow("egg", 0)
-        cv2.resizeWindow("egg", 960, 540)
+        # cv2.namedWindow("egg", 0)
+        # cv2.resizeWindow("egg", 960, 540)
+        # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
         ret, self.img = self.cam.read()
         if not ret:
             print("failed to grab frame")    
@@ -39,9 +38,8 @@ class ImageProcessing:
         cv2.destroyAllWindows()
         
     def take_photo(self):
-        ret, self.img = self.cam.read()
-        # cv2.namedWindow("egg", 0)
-        # cv2.resizeWindow("egg", 960, 540)        
+        # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        ret, self.img = self.cam.read()       
         # self.show(self.img)
         # cv2.destroyAllWindows()
         self.save_img(self.img)
@@ -64,6 +62,7 @@ class ImageProcessing:
         return self.img
     
     def find_center_filter_screen(self):
+        # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
         ret, self.img = self.cam.read()
         img_b, img_g, img_r= cv2.split(self.img)
 
@@ -110,6 +109,7 @@ class ImageProcessing:
         return self.obj_center
 
     def find_center_white_plate(self, show=False):
+        # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
         _, self.img = self.cam.read()
         img_b, _, _= cv2.split(self.img)
 
@@ -141,7 +141,6 @@ class ImageProcessing:
         markers = cv2.watershed(img_cp,markers)
         img_cp[markers == -1] = [0,255,0]
         self.obj_center = []
-        # show_rgb(img)
         for i, center in enumerate(centroids):
             print(stats[i][-1])
             # area filtering
@@ -167,5 +166,6 @@ class ImageProcessing:
             self.show(img_cp)
         self.save_img(img_cp)
 #         cv2.imwrite('center.jpg', img_center)
-        print("egg center at:", self.obj_center)
+        if self.obj_center:
+            print("egg center at:", self.obj_center)
         return self.obj_center
