@@ -28,9 +28,9 @@ class MT24X(ReqResSerial):
         self.plate_limit = [35000, 0]
         self.plate_init_pos = [45400, 47970]
         self.calibration_pos = [41228, 48519]
-        self.niddle_center_pos = [1260, 606]
+        self.niddle_center_pos = [1324, 754]
         self.plate_step = [(58000-45400)/(self.plate_size[0]-1), (47970-28100)/(self.plate_size[1]-1)]
-
+        self.transplate_init_pos = [23465, 90000]
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
         resp = resp.replace(self._terminator, "") if resp is not None else "no response"
