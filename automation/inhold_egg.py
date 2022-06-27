@@ -39,7 +39,7 @@ except SerialException:
 
 # # set folder path
 # folder_name = input('input folder name:')
-folder_name = "dataset_4"
+folder_name = "dataset_5"
 image_path = f"./img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
@@ -71,12 +71,12 @@ try:
             centers = cam.find_center_white_plate(show=False)
             if not centers :
                 print(f"{Fore.RED}egg not found!{Style.RESET_ALL}")
-            elif cam.motor_egg_count == 96:
-                print(f"{Fore.RED}egg plate is full, please change plate!{Style.RESET_ALL}")
-                raise 
             else:
                 # start inholding eggs
                 for center in centers:
+                    if cam.motor_egg_count > 95:
+                        print(f"{Fore.RED}egg plate is full, please change plate!{Style.RESET_ALL}")
+                        raise 
                     print(f"center: {center}")
                     print(Fore.GREEN+"-"*30+f"Egg count: {cam.motor_egg_count}"+"-"*30+Style.RESET_ALL)
                     motor.move_to_center(center)
@@ -85,7 +85,7 @@ try:
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4150, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -4130, 12000, 12000, 3000, wait=True)
                     # time.sleep(1)
                     cam.take_photo()
                     motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
@@ -130,5 +130,5 @@ except Exception as e :
     # motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
     pass
 motor.calibration(3, 3000, 3000, 1000)
-motor.move_MODE_P(0, motor.block_init_pos[0])
-motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
+motor.move_MODE_P(0, motor.transplate_init_pos[0])
+motor.move_MODE_P(1, motor.transplate_init_pos[1], wait=True)
