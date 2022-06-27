@@ -28,7 +28,7 @@ class MT24X(ReqResSerial):
         self.plate_limit = [35000, 0]
         self.plate_init_pos = [45400, 47970]
         self.calibration_pos = [41228, 48519]
-        self.niddle_center_pos = [1324, 754]
+        self.niddle_center_pos = [1180, 754]
         self.plate_step = [(58000-45400)/(self.plate_size[0]-1), (47970-28100)/(self.plate_size[1]-1)]
         self.transplate_init_pos = [23465, 90000]
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
@@ -194,7 +194,7 @@ class MT24X(ReqResSerial):
         y_diff = int((self.niddle_center_pos[1] - point[1])*self.ratio)
         # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
         self.move_MODE_P_REL(0, x_diff)
-        self.move_MODE_P_REL(1, y_diff)
+        self.move_MODE_P_REL(1, y_diff, wait=True)
 
     def get_hole_pos(self, egg_count):
         hole_0 = self.plate_init_pos[0]+int((egg_count//self.plate_size[1])*self.plate_step[0])
