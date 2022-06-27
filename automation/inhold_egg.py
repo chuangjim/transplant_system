@@ -1,12 +1,12 @@
 from tkinter import EXCEPTION
 from mt24x import MT24X
 from image import ImageProcessing
-import cv2
 import time
 import colorama
 from colorama import Fore
 from colorama import Style
 from serial import SerialException
+from sound import Sound
 import sys
 #init colorbar
 colorama.init()
@@ -38,12 +38,18 @@ except SerialException:
 #     motor.move_MODE_P()    
 
 # # set folder path
-# folder_name = input('input folder name:')
-folder_name = "dataset_5"
+folder_name = input('input folder name:')
+# folder_name = "dataset_5"
 image_path = f"./img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
-# initialize camera
+# motor move to first hole
+motor.move_MODE_P(2, -27900)
+motor.move_MODE_P(0, motor.plate_init_pos[0])
+motor.move_MODE_P(1, motor.plate_init_pos[1], wait=True)
+print(f"plate position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
+
+ # initialize camera
 try:
     cam = ImageProcessing(image_path)
 except AttributeError as e:
@@ -51,14 +57,10 @@ except AttributeError as e:
     print(e)
     sys.exit(1)
 
-# motor move to first block
-motor.move_MODE_P(2, -27900)
-motor.move_MODE_P(0, motor.block_init_pos[0])
-motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
-print(f"initial position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
-
 # start transplantation
 try: 
+    motor.move_MODE_P(0, motor.block_init_pos[0])
+    motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
     for i in range(motor.block_size[0]):
         for j in range(motor.block_size[1]):
             print(Fore.GREEN+"-"*40+f"block count: {motor.block_count}"+"-"*40+Style.RESET_ALL)
@@ -76,6 +78,8 @@ try:
                 for center in centers:
                     if cam.motor_egg_count > 95:
                         print(f"{Fore.RED}egg plate is full, please change plate!{Style.RESET_ALL}")
+                        sound = Sound
+                        sound.play_sound()                        
                         raise 
                     print(f"center: {center}")
                     print(Fore.GREEN+"-"*30+f"Egg count: {cam.motor_egg_count}"+"-"*30+Style.RESET_ALL)
@@ -85,7 +89,7 @@ try:
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4130, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -4150, 12000, 12000, 3000, wait=True)
                     # time.sleep(1)
                     cam.take_photo()
                     motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
