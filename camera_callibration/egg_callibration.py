@@ -7,10 +7,10 @@ import json
 
 motor = MT24X(ratio=1.8195, acc_step=6000, dec_step=6000, vec_step=2000\
     , port='COM3', baudrate=115200)
-cam = ImageProcessing()
 folder_name = input('input folder name:')
 image_path = f"./img/egg/egg_{folder_name}"
 print(f"save images at: {image_path}")
+cam = ImageProcessing(image_path)
 json_path = f'./data/egg_{folder_name}.json'
 print(f"save json at: {json_path}")
 
@@ -42,20 +42,20 @@ try:
             print(f"count: {count}, x_diff: {x_diff}, y_diff: {y_diff}")
             motor.move_MODE_P(0, x_center + x_diff)
             motor.move_MODE_P(1, y_center + y_diff, wait = True)
-            cam.take_photo(image_path)
-            point_before = cam.find_center()
+            time.sleep(0.5)
+            cam.take_photo()
+            point_before = cam.find_center_white_plate()
             print("before:",point_before)
             motor.move_to_center(point_before[0])
-            cam.take_photo(image_path)
-            point_after = cam.find_center()
+            cam.take_photo()
+            cam.take_photo()
+            point_after = cam.find_center_white_plate()
             print("after:", point_after)
             append_json(count, point_before, point_after)
             count += 1
             
 except Exception as e:
     print(e)
-    motor.move_MODE_P(0, x_center)
-    motor.move_MODE_P(1, y_center, wait = True)
 
 motor.move_MODE_P(0, x_center)
 motor.move_MODE_P(1, y_center, wait = True)
