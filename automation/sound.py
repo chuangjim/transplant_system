@@ -12,6 +12,6 @@ class Sound:
         volume.SetMute(0, None)
         volume.SetMasterVolumeLevel(0, None)
         playsound('./sound/finish_sound.mp3')
+        # playsound('./sound/finish_sound2.mp3')
         volume.SetMasterVolumeLevel(vl, None)
-
 
