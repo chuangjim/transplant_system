@@ -89,7 +89,7 @@ try:
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4150, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, -4180, 12000, 12000, 3000, wait=True)
                     # time.sleep(1)
                     cam.take_photo()
                     motor.move_MODE_P(3, -3300, 12000, 12000, 3000, wait=True)
@@ -108,7 +108,6 @@ try:
                     
                     # finish
                     motor.set_out(0, 0)
-                    # TODO check hight
                     motor.calibration(3, 12000, 12000, 3000, wait = True)
                     cam.take_photo()
                     motor.move_MODE_P(0, motor.frame_init_pos[0])
@@ -119,7 +118,7 @@ try:
             motor.block_count += 1
             if j == (motor.block_size[1]-1):
                 print(f"{Fore.RED}move to next block column!{Style.RESET_ALL}")
-                motor.move_MODE_P_REL(0, motor.block_step[0])
+                motor.move_MODE_P_REL(0, -motor.block_step[0])
                 motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
             else:
                 motor.move_MODE_P_REL(1, -motor.block_step[1], wait=True)
