@@ -1,6 +1,5 @@
 from mt24x import MT24X
 from image import ImageProcessing
-import cv2
 import time
 acc_step, dec_step, vec_step = 36000, 36000, 12000
 
@@ -10,10 +9,10 @@ folder_name = input('input folder name:')
 image_path = f"./img/take_picture/{folder_name}"
 print(f"save images at: {image_path}")
 cam = ImageProcessing(image_path)
-dim_0 = 7
-dim_1 = 11
-step_0 = ((55550-43100)/dim_0)
-step_1 = ((46100-26200)/dim_1)
+dim_0 = 8
+dim_1 = 12
+step_0 = ((55550-43100)/dim_0-1)
+step_1 = ((46100-26200)/dim_1-1)
 count = 0
 
 # init_0 = motor.get_p(0)
