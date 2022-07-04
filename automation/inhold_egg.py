@@ -16,7 +16,7 @@ slow_mode ="n"
 if slow_mode == "y" or "":
     acc_step, dec_step, vec_step = 6000, 6000, 2000
 elif slow_mode == "n":
-    acc_step, dec_step, vec_step = 36000, 36000, 12000
+    acc_step, dec_step, vec_step = 72000, 72000, 20000
     # acc_step, dec_step, vec_step = 75000, 75000, 25000
 
 
@@ -59,6 +59,7 @@ except AttributeError as e:
 
 # start transplantation
 try: 
+    before = time.time()
     motor.move_MODE_P(0, motor.block_init_pos[0])
     motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
     for i in range(motor.block_size[0]):
@@ -102,13 +103,13 @@ try:
                     # time.sleep(1)
                     cam.take_photo()
 
-                    # release egg
+                    # release egg,
                     motor.set_out(0, 1)
                     time.sleep(1)
                     
                     # finish
                     motor.set_out(0, 0)
-                    motor.calibration(3, 12000, 12000, 3000, wait = True)
+                    motor.calibration(3, 12000, 12000, 3000)
                     cam.take_photo()
                     motor.move_MODE_P(0, motor.frame_init_pos[0])
                     motor.move_MODE_P(1, motor.frame_init_pos[1], wait=True) 
@@ -132,6 +133,9 @@ except Exception as e :
     # motor.move_MODE_P(0, motor.block_init_pos[0])
     # motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
     pass
+after = time.time()
+print(f'time last: {after-before}')
 motor.calibration(3, 3000, 3000, 1000)
 motor.move_MODE_P(0, motor.transplate_init_pos[0])
 motor.move_MODE_P(1, motor.transplate_init_pos[1], wait=True)
+
