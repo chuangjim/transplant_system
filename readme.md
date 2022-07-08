@@ -2,7 +2,7 @@
 this is a transplantation system which connects camera, motion control card. Using OpenCV and Seriel (ASCII) package to conduct egg transplantation based on python
 
 # Guide
-to conduct egg transplantatino, simply type:
+to conduct egg transplantation, simply type:
 ``` 
 # in terminal
 cd automation
