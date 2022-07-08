@@ -28,7 +28,7 @@ class MT24X(ReqResSerial):
         self.plate_limit = [35000, 0]
         self.plate_init_pos = [45400, 47970]
         self.calibration_pos = [41228, 48519]
-        self.niddle_center_pos = [1200, 582]
+        self.niddle_center_pos = [1272, 614 ]
         self.plate_step = [1800, 1806]
         self.transplate_init_pos = [23465, 90000]
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
