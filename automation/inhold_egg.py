@@ -45,8 +45,8 @@ print(f"save images at: {image_path}")
 
 # motor move to first hole
 motor.move_MODE_P(2, -27900)
-motor.move_MODE_P(0, motor.plate_init_pos[0])
-motor.move_MODE_P(1, motor.plate_init_pos[1], wait=True)
+motor.move_MODE_P(0, motor.plate_init_pos[0], 36000, 36000, 12000)
+motor.move_MODE_P(1, motor.plate_init_pos[1], 36000, 36000, 12000, wait=True)
 print(f"plate position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
 
  # initialize camera
