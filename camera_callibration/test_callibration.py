@@ -9,7 +9,7 @@ BOARD_RAW = 20
 BOARD_COL = 20
 
 # 图片保存路径
-IMG_SAVE_PATH = "img/"
+IMG_SAVE_PATH = "img/wrong_chessboard/"
 IMG_RESULT_PATH = "result/"
 
 if __name__ == '__main__':
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
         # 寻找角点
         ret, corners = cv2.findChessboardCorners(gray, (BOARD_RAW, BOARD_COL), None)
-        print(type(corners), corners)
+        # print(type(corners), corners)
         criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
         sub_corners = cv2.cornerSubPix(gray, corners, (11, 11), (-1, -1), criteria)
 
