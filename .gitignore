@@ -6,5 +6,8 @@ camera_callibration/data/
 camera_callibration/result/
 examples/
 sound/
+dataset/
+out_put_chart/
+models/
 
 
