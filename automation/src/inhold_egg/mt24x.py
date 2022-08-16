@@ -31,6 +31,11 @@ class MT24X(ReqResSerial):
         self.niddle_center_pos = [1192, 614]
         self.plate_step = [1800, 1806]
         self.transplate_init_pos = [23465, 90000]
+        self.z_pos = -27900
+        self.w_pick_pos = -4000
+        self.w_place_pos = -3500
+        self.w_safe_pos = -2500
+
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
         resp = resp.replace(self._terminator, "") if resp is not None else "no response"
@@ -104,6 +109,7 @@ class MT24X(ReqResSerial):
 
     def wait(self):
         while True:
+            # print(self.get_run(3))
             if not self.get_run(0) and not self.get_run(1) and not self.get_run(2) and not self.get_run(3):
                 break
             time.sleep(0.1)
