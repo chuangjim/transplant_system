@@ -5,9 +5,10 @@ import os
 
 class ImageProcessing:
     def __init__(self, image_path):
+        self.cam_id = 0
         self.image_path = image_path
         self.image_crop_path = f"{self.image_path}/crop"
-        self.cam = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+        self.cam = cv2.VideoCapture(self.cam_id, cv2.CAP_DSHOW)
         # self.cam.set(cv2.CAP_PROP_BUFFERSIZE, 0)
         self.cam.set(3,1920)
         self.cam.set(4,1080)
@@ -29,18 +30,24 @@ class ImageProcessing:
 
     def show(self, img):
         cv2.namedWindow("egg", 0)
-        cv2.resizeWindow("egg", 960, 540)
-        self.img = img         
+        cv2.resizeWindow("egg", 960, 540)    
         while True:
-            cv2.imshow("egg",self.img)
+            cv2.imshow("egg",img)
             if cv2.waitKey(10) & 0xff == ord('q'):
                 break
         cv2.destroyAllWindows()
         
-    def take_photo(self):
+    def take_photo(self, show=False):
         # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        ret, self.img = self.cam.read()       
-        # self.show(self.img)
+        ret, self.img = self.cam.read()
+        while not ret:
+            print('!!!!!!!!!!camera shut down. reload camera!!!!!!!!!')
+            self.cam.release()      
+            self.cam = cv2.VideoCapture(self.cam_id, cv2.CAP_DSHOW)
+            ret, self.img = self.cam.read()
+
+        if show:
+            self.show(self.img)
         # cv2.destroyAllWindows()
         self.save_img(self.img)
         return self.img
@@ -142,13 +149,13 @@ class ImageProcessing:
         img_cp[markers == -1] = [0,255,0]
         self.obj_center = []
         for i, center in enumerate(centroids):
-            print(stats[i][-1])
+            # print(stats[i][-1])
             # area filtering
             # TODO: find suitable area
             if 1000 < stats[i][-1] < 4500:
                 center = center.astype(int)
                 self.obj_center.append(center)
-                print(center[0], center[1], stats[i])
+                # print(center[0], center[1], stats[i])
                 cv2.circle(img_cp, (center[0], center[1]), 5, (255, 0, 0), -1)
                 cv2.putText(img_cp, f'({center[0]}, {center[1]})', (center[0] - 25, center[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
                 # crop one egg frop image
