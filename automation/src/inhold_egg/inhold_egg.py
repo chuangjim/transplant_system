@@ -14,7 +14,7 @@ colorama.init()
 # slow_mode = input("slow mode?(y/n)")
 slow_mode ="n"
 if slow_mode == "y" or "":
-    acc_step, dec_step, vec_step = 6000, 6000, 2000
+    acc_step, dec_step, vec_step = 12000, 12000, 3000
 elif slow_mode == "n":
     acc_step, dec_step, vec_step = 72000, 72000, 20000
     # acc_step, dec_step, vec_step = 75000, 75000, 25000
@@ -22,7 +22,7 @@ elif slow_mode == "n":
 
 # initialize motor
 try:
-    motor = MT24X(acc_step,  dec_step, vec_step, 'COM3', 115200, ratio=1.8195)
+    motor = MT24X(acc_step,  dec_step, vec_step, 'COM3', 115200, ratio=1.7857) # ratio(well)=1.8195
     motor.calibration(0, 36000, 36000, -12000)
     motor.calibration(1, 36000, 36000, -12000)
     motor.calibration(2, 36000, 36000, 12000)
@@ -30,6 +30,18 @@ try:
 except SerialException:
     print(Fore.RED+"Cannot connect motor, please turn off MTHelper.exe, check COM port number, or replug cable"+Style.RESET_ALL)
     sys.exit(1)
+
+larva = True
+if larva:
+    motor.plate_init_pos = [24987, 45653]
+    motor.plate_size = [20, 20]
+    motor.plate_step = [1789, 1798]
+    motor.block_init_pos = [15066, 45084]
+    motor.z_pos = -21500
+    motor.w_pick_pos = -4080
+    motor.w_place_pos = -3000
+    motor.niddle_center_pos = [1200, 599]
+
 
 
 # motor_positioning = input("start motor positioning?(y/n)")
@@ -40,14 +52,13 @@ except SerialException:
 # # set folder path
 folder_name = input('input folder name:')
 # folder_name = "dataset_5"
-image_path = f"./img/inhold_egg/{folder_name}"
+image_path = f"../../data/img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
 # motor move to first hole
-motor.move_MODE_P(2, -27900)
+motor.move_MODE_P(2, motor.z_pos, 36000, 36000, 12000)
 motor.move_MODE_P(0, motor.plate_init_pos[0], 36000, 36000, 12000)
 motor.move_MODE_P(1, motor.plate_init_pos[1], 36000, 36000, 12000, wait=True)
-print(f"plate position: {motor.block_init_pos[0]}, {motor.block_init_pos[1]}")
 
  # initialize camera
 try:
@@ -90,15 +101,16 @@ try:
 
                     # inhold egg
                     motor.set_out(0, 0)
-                    motor.move_MODE_P(3, -4000, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, motor.w_pick_pos, 12000, 12000, 3000, wait=True)
                     # time.sleep(1)
                     cam.take_photo()
-                    motor.move_MODE_P(3, -3000, 12000, 12000, 3000, wait=True)
+                    motor.move_MODE_P(3, motor.w_safe_pos, 12000, 12000, 3000, wait=True)
 
                     # motor move to hole
                     hole_0, hole_1 = motor.get_hole_pos(cam.motor_egg_count)
                     motor.move_MODE_P(0, hole_0)
                     motor.move_MODE_P(1, hole_1, wait=True)
+                    motor.move_MODE_P(3, motor.w_place_pos, 12000, 12000, 3000, wait=True)
                     cam.motor_egg_count += 1
                     # time.sleep(1)
                     cam.take_photo()
@@ -135,7 +147,8 @@ except Exception as e :
     pass
 after = time.time()
 print(f'time last: {after-before}')
-motor.calibration(3, 3000, 3000, 1000)
-motor.move_MODE_P(0, motor.transplate_init_pos[0])
+motor.calibration(3, 12000, 12000, 3000, wait=True)
+time.sleep(2)
 motor.move_MODE_P(1, motor.transplate_init_pos[1], wait=True)
+motor.move_MODE_P(0, motor.transplate_init_pos[0], wait=True)
 
