@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 # from  matplotlib import pyplot as plt
 import os
-
+import time
 class ImageProcessing:
     def __init__(self, image_path):
         self.cam_id = 0
@@ -42,9 +42,13 @@ class ImageProcessing:
         ret, self.img = self.cam.read()
         while not ret:
             print('!!!!!!!!!!camera shut down. reload camera!!!!!!!!!')
-            self.cam.release()      
+            self.cam.release()  
+            cv2.destroyAllWindows()    
             self.cam = cv2.VideoCapture(self.cam_id, cv2.CAP_DSHOW)
+            self.cam.set(3,1920)
+            self.cam.set(4,1080)
             ret, self.img = self.cam.read()
+            time.sleep(0.1)
 
         if show:
             self.show(self.img)
@@ -176,3 +180,47 @@ class ImageProcessing:
         if self.obj_center:
             print("egg center at:", self.obj_center)
         return self.obj_center
+
+    def detect_hole(self, show=False):
+        # show_rgb(img)
+        img_b, img_g, img_r= cv2.split(img)
+        img_b = cv2.resize(img_b, (960, 540))
+        show(img_b)
+        # reverse
+        img_rev = 255 - img_b
+        circles = cv2.HoughCircles(img_rev,cv2.HOUGH_GRADIENT,1,600,
+                                    param1=50,param2=50,minRadius=176,maxRadius=235)
+        circles = np.uint16(np.around(circles))
+        img_draw = img_rev.copy()
+        # for i in circles[0,:]:
+        #     cv2.circle(img_draw,(i[0],i[1]),i[2],(0,255,0),2)
+        #     cv2.circle(img_draw,(i[0],i[1]),2,(0,0,255),3)
+        # show(img_draw)
+        min = np.argmin(circles[0,:], axis=0)[0]
+        circle = circles[0,:][min]
+        mask = np.full(img_b.shape[:2], 0, dtype=np.uint8)
+        mask = cv2.circle(mask, (circle[0], circle[1]), circle[2], (255, 255, 255),-1)
+        img_draw = cv2.bitwise_and(img_draw, img_draw, mask=mask)
+        y1 = int(circle[1])-circle[2] if (int(circle[1])-circle[2]) > 0 else 0
+        y2 = int(circle[1])+circle[2] if (int(circle[1])+circle[2]) < 1080 else 1080
+        x1 = int(circle[0])-circle[2] if (int(circle[0])-circle[2]) > 0 else 0
+        x2 = int(circle[0])+circle[2] if (int(circle[0])+circle[2]) < 1920 else 1920
+        img_draw = img_draw[y1:y2, x1:x2]
+        # show(img_draw)
+        ret, img_th = cv2.threshold(img_draw,170,255,cv2.THRESH_BINARY)
+        # show(img_th)
+        # find contours in the binary image
+        contours, hierarchy = cv2.findContours(img_th, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        for c in contours:
+            # calculate moments for each contour
+            M = cv2.moments(c)
+            print(f'area:{cv2.contourArea(c)}, M["m00"]: {M["m00"]}')
+            if 507 < cv2.contourArea(c) < 620:
+                # calculate x,y coordinate of center
+                cX = int(M["m10"] / M["m00"])
+                cY = int(M["m01"] / M["m00"])
+                cv2.circle(img_draw, (cX, cY), 5, (255, 0, 0), -1)
+                cv2.putText(img_draw, f'({cX}, {cY})', (cX - 25, cY - 25), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 1)
+                if show:
+                    self.show(img_draw)
+                return True
