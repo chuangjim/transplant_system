@@ -22,7 +22,7 @@ elif slow_mode == "n":
 
 # initialize motor
 try:
-    motor = MT24X(acc_step,  dec_step, vec_step, 'COM3', 115200, ratio=1.7857) # ratio(well)=1.8195
+    motor = MT24X(acc_step,  dec_step, vec_step, 'COM3', 115200, ratio=1.8195) # ratio(well)=1.8195, ratio(larve)=1.7857
     motor.calibration(0, 36000, 36000, -12000)
     motor.calibration(1, 36000, 36000, -12000)
     motor.calibration(2, 36000, 36000, 12000)
@@ -31,18 +31,28 @@ except SerialException:
     print(Fore.RED+"Cannot connect motor, please turn off MTHelper.exe, check COM port number, or replug cable"+Style.RESET_ALL)
     sys.exit(1)
 
-larva = True
-if larva:
+mode = '96'
+if mode == '400':
     motor.plate_init_pos = [24987, 45653]
     motor.plate_size = [20, 20]
     motor.plate_step = [1789, 1798]
     motor.block_init_pos = [15066, 45084]
     motor.z_pos = -21500
-    motor.w_pick_pos = -4080
+    motor.w_pick_pos = -4060
     motor.w_place_pos = -3000
-    motor.niddle_center_pos = [1200, 599]
+    motor.niddle_center_pos = [1152, 599]
+    motor.w_safe_pos = -2500
 
-
+elif mode == '96':
+    motor.plate_init_pos = [25899, 44813] 
+    motor.plate_size = [8, 12]
+    motor.plate_step = [1800, 1806]
+    motor.block_init_pos = [15066, 45084]
+    motor.z_pos = -21500
+    motor.w_pick_pos = -4050
+    motor.w_place_pos = -3450
+    motor.niddle_center_pos = [1212, 602]
+    motor.w_safe_pos = -2000
 
 # motor_positioning = input("start motor positioning?(y/n)")
 # if motor_positioning == "y":
@@ -111,7 +121,6 @@ try:
                     motor.move_MODE_P(0, hole_0)
                     motor.move_MODE_P(1, hole_1, wait=True)
                     motor.move_MODE_P(3, motor.w_place_pos, 12000, 12000, 3000, wait=True)
-                    cam.motor_egg_count += 1
                     # time.sleep(1)
                     cam.take_photo()
 
@@ -121,8 +130,15 @@ try:
                     
                     # finish
                     motor.set_out(0, 0)
-                    motor.calibration(3, 12000, 12000, 3000)
+                    motor.calibration(3, 12000, 12000, 3000, wait=True)
                     cam.take_photo()
+                    egg_in_hole = cam.detect_hole(show=False)
+                    if egg_in_hole:
+                        print("egg in hole, count+1")
+                        cam.motor_egg_count += 1
+                    else:
+                        print('egg not in hole')
+
                     motor.move_MODE_P(0, motor.frame_init_pos[0])
                     motor.move_MODE_P(1, motor.frame_init_pos[1], wait=True) 
 
@@ -140,7 +156,7 @@ except KeyboardInterrupt :
     print(f"{Fore.GREEN}Keyboard Interrrupt{Style.RESET_ALL}")
 except Exception as e :
     print(e)
-    # print(f"{Fore.GREEN}{Style.RESET_ALL}")
+    # print(f"{Fore.GREEN}{Style.RESET_ALL}") 
     # motor.calibration(3, 3000, 3000, 1000)
     # motor.move_MODE_P(0, motor.block_init_pos[0])
     # motor.move_MODE_P(1, motor.block_init_pos[1], wait=True)
