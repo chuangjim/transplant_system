@@ -19,7 +19,7 @@ class MT24X(ReqResSerial):
         self.dec_step = dec_step
         self.vec_step = vec_step
         self.block_size = [5, 8]
-        self.block_step = [2461, 1726]
+        self.block_step = [3111, 1934]
         self.block_count = 0
         self.block_init_pos = [35771, 44881]
         # self.block_init_pos = [22800, 37600]
@@ -28,13 +28,13 @@ class MT24X(ReqResSerial):
         self.plate_limit = [35000, 0]
         self.plate_init_pos = [45400, 47970]
         self.calibration_pos = [41228, 48519]
-        self.niddle_center_pos = [1192, 614]
+        self.niddle_center_pos = [1112, 594]
         self.plate_step = [1800, 1806]
         self.transplate_init_pos = [23465, 90000]
         self.z_pos = -27900
-        self.w_pick_pos = -4000
-        self.w_place_pos = -3500
-        self.w_safe_pos = -2500
+        self.w_pick_pos = -3970
+        self.w_place_pos = -3300
+        self.w_safe_pos = -2000
 
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
