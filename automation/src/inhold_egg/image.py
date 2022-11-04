@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-# from  matplotlib import pyplot as plt
 import os
 import time
 class ImageProcessing:
@@ -74,7 +73,7 @@ class ImageProcessing:
     
     def find_center_filter_screen(self):
         # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        ret, self.img = self.cam.read()
+        self.img = self.take_photo()
         img_b, img_g, img_r= cv2.split(self.img)
 
         # reverse
@@ -119,9 +118,9 @@ class ImageProcessing:
         print("egg center at:", self.obj_center)
         return self.obj_center
 
-    def find_center_white_plate(self, show=False):
+    def find_center_white_plate(self, position, show=False, absolute=False):
         # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
-        _, self.img = self.cam.read()
+        self.img = self.take_photo()
         img_b, _, _= cv2.split(self.img)
 
         # reverse
@@ -152,13 +151,19 @@ class ImageProcessing:
         markers = cv2.watershed(img_cp,markers)
         img_cp[markers == -1] = [0,255,0]
         self.obj_center = []
+        self.frame_pos = []
         for i, center in enumerate(centroids):
             # print(stats[i][-1])
             # area filtering
             # TODO: find suitable area
             if 1000 < stats[i][-1] < 4500:
                 center = center.astype(int)
+                if absolute:
+                    # change from relative position to absolute position
+                    center[0]+=position[0]
+                    center[1]+=position[1]
                 self.obj_center.append(center)
+                self.frame_pos.append(position)
                 # print(center[0], center[1], stats[i])
                 cv2.circle(img_cp, (center[0], center[1]), 5, (255, 0, 0), -1)
                 cv2.putText(img_cp, f'({center[0]}, {center[1]})', (center[0] - 25, center[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
@@ -179,13 +184,13 @@ class ImageProcessing:
 #         cv2.imwrite('center.jpg', img_center)
         if self.obj_center:
             print("egg center at:", self.obj_center)
-        return self.obj_center
+        return self.obj_center, self.frame_pos
 
     def detect_hole(self, show=False):
         # show_rgb(img)
-        img_b, img_g, img_r= cv2.split(img)
-        img_b = cv2.resize(img_b, (960, 540))
-        show(img_b)
+        self.img = self.take_photo()
+        img_b, _, _= cv2.split(self.img)
+        # show(img_b)
         # reverse
         img_rev = 255 - img_b
         circles = cv2.HoughCircles(img_rev,cv2.HOUGH_GRADIENT,1,600,
