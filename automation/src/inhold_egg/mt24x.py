@@ -18,23 +18,23 @@ class MT24X(ReqResSerial):
         self.acc_step = acc_step
         self.dec_step = dec_step
         self.vec_step = vec_step
-        self.block_size = [5, 8]
-        self.block_step = [3111, 1934]
+        self.block_size = [4, 8]
+        self.block_step = [3081, 1734]
         self.block_count = 0
-        self.block_init_pos = [35771, 44881]
+        self.block_init_pos = [17301, 66635]
         # self.block_init_pos = [22800, 37600]
         self.frame_init_pos = []
         self.plate_size = [8, 12]
-        self.plate_limit = [35000, 0]
-        self.plate_init_pos = [45400, 47970]
-        self.calibration_pos = [41228, 48519]
-        self.niddle_center_pos = [1112, 594]
-        self.plate_step = [1800, 1806]
-        self.transplate_init_pos = [23465, 90000]
-        self.z_pos = -27900
-        self.w_pick_pos = -3970
-        self.w_place_pos = -3300
-        self.w_safe_pos = -2000
+        self.plate_init_pos = [27356, 67680]
+        self.plate_step = [1793, 1803]
+        # self.calibration_pos = [41228, 48519]
+        self.niddle_center_pos = [968, 574]
+
+        self.transplate_init_pos = [40390, 90000]
+        self.z_pos = -27531
+        self.w_pick_pos = -5300
+        self.w_place_pos = -4400
+        self.w_safe_pos = -4000
 
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
@@ -109,7 +109,7 @@ class MT24X(ReqResSerial):
 
     def wait(self):
         while True:
-            # print(self.get_run(3))
+            # print(self.get_run(0),self.get_run(1), self.get_run(2))
             if not self.get_run(0) and not self.get_run(1) and not self.get_run(2) and not self.get_run(3):
                 break
             time.sleep(0.1)
@@ -195,7 +195,7 @@ class MT24X(ReqResSerial):
             "L_REL 0 {} {}".format(m_ids_str, step_str), 
             timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
-    def move_to_center(self, point):
+    def move_to_center(self, point, absolute=False):
         x_diff = int((self.niddle_center_pos[0] - point[0])*self.ratio)
         y_diff = int((self.niddle_center_pos[1] - point[1])*self.ratio)
         # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
