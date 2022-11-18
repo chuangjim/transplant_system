@@ -100,7 +100,7 @@ class ImageProcessing:
         # find contours in the binary image
         contours, hierarchy = cv2.findContours(img_center, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         img_center = cv2.cvtColor(img_center, cv2.COLOR_GRAY2BGR)
-        self.obj_center = []
+        self.img_obj_center = []
         for c in contours:
             # calculate moments for each contour
             M = cv2.moments(c)
@@ -109,16 +109,16 @@ class ImageProcessing:
                 # calculate x,y coordinate of center
                 cX = int(M["m10"] / M["m00"])
                 cY = int(M["m01"] / M["m00"])
-                self.obj_center.append((cX, cY))
+                self.img_obj_center.append((cX, cY))
                 cv2.circle(img_center, (cX, cY), 5, (255, 0, 0), -1)
                 cv2.putText(img_center, f'({cX}, {cY})', (cX - 25, cY - 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 10)
         self.show(img_center)
         self.save_img(img_center)
 #         cv2.imwrite('center.jpg', img_center)
-        print("egg center at:", self.obj_center)
-        return self.obj_center
+        print("egg center at:", self.img_obj_center)
+        return self.img_obj_center
 
-    def find_center_white_plate(self, position, show=False, absolute=False):
+    def find_center_white_plate(self, position, show=False):
         # self.cam.set(cv2.CAP_PROP_POS_FRAMES, 0)
         self.img = self.take_photo()
         img_b, _, _= cv2.split(self.img)
@@ -150,20 +150,16 @@ class ImageProcessing:
         markers[unknown==255] = 0
         markers = cv2.watershed(img_cp,markers)
         img_cp[markers == -1] = [0,255,0]
-        self.obj_center = []
-        self.frame_pos = []
+        self.img_obj_center = []
+        self.img_frame_pos = []
         for i, center in enumerate(centroids):
             # print(stats[i][-1])
             # area filtering
             # TODO: find suitable area
             if 1000 < stats[i][-1] < 4500:
                 center = center.astype(int)
-                if absolute:
-                    # change from relative position to absolute position
-                    center[0]+=position[0]
-                    center[1]+=position[1]
-                self.obj_center.append(center)
-                self.frame_pos.append(position)
+                self.img_obj_center.append(center)
+                self.img_frame_pos.append(position)
                 # print(center[0], center[1], stats[i])
                 cv2.circle(img_cp, (center[0], center[1]), 5, (255, 0, 0), -1)
                 cv2.putText(img_cp, f'({center[0]}, {center[1]})', (center[0] - 25, center[1] - 25), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
@@ -182,9 +178,9 @@ class ImageProcessing:
             self.show(img_cp)
         self.save_img(img_cp)
 #         cv2.imwrite('center.jpg', img_center)
-        if self.obj_center:
-            print("egg center at:", self.obj_center)
-        return self.obj_center, self.frame_pos
+        if self.img_obj_center:
+            print("egg center at:", self.img_obj_center)
+        return self.img_obj_center, self.img_frame_pos
 
     def detect_hole(self, show=False):
         # show_rgb(img)
