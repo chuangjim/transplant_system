@@ -29,12 +29,17 @@ class MT24X(ReqResSerial):
         self.plate_step = [1793, 1803]
         # self.calibration_pos = [41228, 48519]
         self.niddle_center_pos = [968, 574]
+        self.clean_pos = [9575, 42767]
+        
 
         self.transplate_init_pos = [40390, 90000]
         self.z_pos = -27531
         self.w_pick_pos = -5300
         self.w_place_pos = -4400
         self.w_safe_pos = -4000
+        self.w_clean_pos = -3500
+
+        self.chessboard_pos = [21597, 74310]
 
     def request(self, cmd, timeout = None, retry_times = 0, return_value=False):
         resp = super().request(cmd, timeout, retry_times)
@@ -195,12 +200,18 @@ class MT24X(ReqResSerial):
             "L_REL 0 {} {}".format(m_ids_str, step_str), 
             timeout=0.5, retry_times = 2, return_value = True)
         self.wait()
-    def move_to_center(self, point, absolute=False):
+    def move_to_center(self, point, frame_pos=False, absolute=False):
         x_diff = int((self.niddle_center_pos[0] - point[0])*self.ratio)
         y_diff = int((self.niddle_center_pos[1] - point[1])*self.ratio)
-        # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
-        self.move_MODE_P_REL(0, x_diff)
-        self.move_MODE_P_REL(1, y_diff, wait=True)
+        if absolute:
+            x_diff += frame_pos[0]
+            y_diff += frame_pos[1]
+            self.move_MODE_P(0, x_diff)
+            self.move_MODE_P(1, y_diff, wait=True)
+        else:
+            # self.move_MODE_L([0, 1], 3000, 3000, 1000, [x_diff + x_center, y_diff + y_center])
+            self.move_MODE_P_REL(0, x_diff)
+            self.move_MODE_P_REL(1, y_diff, wait=True)
 
     def get_hole_pos(self, egg_count):
         hole_0 = self.plate_init_pos[0]+int((egg_count//self.plate_size[1])*self.plate_step[0])
