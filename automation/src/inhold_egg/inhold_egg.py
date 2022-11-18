@@ -14,9 +14,9 @@ egg_count = 0
 colorama.init()
 
 # slow_mode = input("slow mode?(y/n)")
-slow_mode ="y"
+slow_mode ="n"
 if slow_mode == "y" or "":
-    acc_step, dec_step, vec_step = 12000, 12000, 5000
+    acc_step, dec_step, vec_step = 12000, 12000, 7000
 elif slow_mode == "n":
     acc_step, dec_step, vec_step = 72000, 72000, 20000
     # acc_step, dec_step, vec_step = 75000, 75000, 25000
@@ -25,9 +25,9 @@ elif slow_mode == "n":
 # initialize motor and set speed
 try:
     motor = MT24X(acc_step,  dec_step, vec_step, 'COM5', 115200, ratio=1.9322) # ratio(well)=1.8195, ratio(larve)=1.7857
-    motor.move_MODE_P(2, -10000, 36000, 36000, 6000, wait = True)
+    # motor.move_MODE_P(2, -10000, 36000, 36000, 6000, wait = True)
     motor.calibration(0, 36000, 36000, -6000)
-    motor.calibration(1, 36000, 36000, -3000)
+    motor.calibration(1, 36000, 36000, -6000)
     motor.calibration(2, 36000, 36000, 6000)
     motor.calibration(3, 3000, 3000, 1000, wait = True)
 except SerialException:
@@ -40,11 +40,15 @@ if mode == 400:
     motor.plate_size = [20, 20]
     motor.plate_step = [1793, 1803]
     motor.block_init_pos = [17301, 66635]
-    motor.z_pos = -27531
-    motor.w_pick_pos = -5300
+    motor.z_pos = -27651
+    motor.w_pick_pos = -5250
     motor.w_place_pos = -4400
     motor.w_safe_pos = -4000
-    motor.niddle_center_pos = [1066, 583]
+    motor.w_clean_pos = -3500
+    motor.niddle_center_pos = [1056, 606]
+    motor.clean_pos = [9575, 46738]
+    motor.clean_set_pos = [9575, 39738]
+
 
 elif mode == 96:
     motor.plate_init_pos = [25599, 44813] 
@@ -64,18 +68,27 @@ elif mode == 96:
 
 # # set folder path
 # folder_name = input('input folder name:')
-folder_name = "test"
+# folder_name = "test"
+folder_name = time.strftime("%Y%m%d_%H%M%S", time.localtime())
 image_path = f"../../data/img/inhold_egg/{folder_name}"
 print(f"save images at: {image_path}")
 
 # motor move to first hole
-motor.move_MODE_P(2, motor.z_pos, 36000, 36000, 6000)
-motor.move_MODE_P(0, motor.plate_init_pos[0], 36000, 36000, 6000)
-motor.move_MODE_P(1, motor.plate_init_pos[1], 36000, 36000, 5000, wait=True)
+# motor.move_MODE_P(2, motor.z_pos)
+# motor.move_MODE_P(0, motor.plate_init_pos[0])
+# motor.move_MODE_P(1, motor.plate_init_pos[1], wait=True)
 
  # initialize camera
 try:
+    motor.move_MODE_P(2, motor.z_pos)
+    motor.move_MODE_P(0, motor.chessboard_pos[0])
+    motor.move_MODE_P(1, motor.chessboard_pos[1], wait=True)
     cam = ImageProcessing(image_path)
+    # motor.calibration(0, 36000, 36000, -6000)
+    # motor.calibration(1, 36000, 36000, -6000)
+    # motor.calibration(2, 36000, 36000, 6000)
+    # motor.calibration(3, 3000, 3000, 1000, wait = True)  
+
 except AttributeError as e:
     print(Fore.RED+"Cannot connect camera, please unplug or close camera app"+Style.RESET_ALL)
     print(e)
@@ -132,10 +145,17 @@ try:
                         # release egg,
                         motor.set_out(0, 1)
                         time.sleep(1)
+                        motor.set_out(0, 0)
+
+                        # move to clean position
+                        motor.move_MODE_P(3, motor.w_clean_pos, 12000, 12000, 3000)
+                        motor.move_MODE_P(1, motor.clean_set_pos[1])
+                        motor.move_MODE_P(0, motor.clean_set_pos[0], wait=True)
+                        motor.move_MODE_P(1, motor.clean_pos[1], wait=True)
                         
                         # finish
-                        motor.set_out(0, 0)
-                        motor.calibration(3, 12000, 12000, 3000, wait=True)
+                        motor.calibration(3, 12000, 12000, 3000)
+                        
                         cam.take_photo()
 
                         # TODO: debug circles(loop of ufunc does not support argument\
